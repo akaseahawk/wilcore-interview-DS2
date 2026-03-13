@@ -46,7 +46,9 @@ Reports shape, dtypes, missing value counts, and clarity distribution. No missin
 - Post-dedup null check (zero nulls confirmed)
 
 **Section 4 - Summary Statistics**
-Mean and standard deviation for `carat` and `price` grouped by `clarity`, with rows ordered from best to worst grade (IF down to I1). Note: the table shows lower-clarity grades (SI1, SI2) with higher average prices than premium grades - this is carat confounding, not a data error. Worse-clarity diamonds tend to be physically larger, and carat weight is the dominant price driver. Price-per-carat (Section 8) corrects for this. Accompanied by a stacked bar chart showing how each clarity grade distributes across carat-weight brackets.
+Mean and standard deviation for `carat` and `price` grouped by `clarity`, with rows ordered from best to worst grade (IF down to I1). Note: the table shows lower-clarity grades (SI1, SI2) with higher average prices than premium grades - this is carat confounding, not a data error. Worse-clarity diamonds tend to be physically larger (SI2 avg 1.16 ct vs IF avg 0.62 ct), and carat weight is the dominant price driver. Price-per-carat (Section 8) corrects for this.
+
+The chart below shows diamond counts by carat weight bracket (0-0.5 ct, 0.5-1 ct, 1-1.5 ct, 1.5-2 ct, 2+ ct), stacked by clarity grade. It illustrates how lower-clarity grades (SI1, SI2, I1) dominate the heavier weight brackets, which is the root cause of the price paradox in the summary table above.
 
 ![Stacked Bar - Diamond Count by Carat Bracket](charts/chart_01_stacked_bar_carat_by_clarity.png)
 
