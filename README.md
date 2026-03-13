@@ -65,7 +65,7 @@ Pearson correlation heatmap (carat vs price r = 0.891). Scatter plot of price vs
 ![Price vs Carat Scatter by Clarity](charts/chart_05_price_vs_carat_scatter.png)
 
 **Section 7 - Business Questions**
-Answers derived from a `support_report` DataFrame containing mean price, median price, and mean carat per clarity on `df_filtered`. Q1 uses median price (more representative given right skew); Q2 uses mean price and mean carat.
+Answers derived from a `support_report` DataFrame containing price_mean, price_median, and carat_mean per clarity on `df_filtered`. Q1 uses median price (more representative given right skew); Q2 uses mean price and mean carat.
 
 Top 3 clarity categories by highest median price (SI2, SI1, VS2 - driven by larger stone sizes in those grades):
 
