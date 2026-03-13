@@ -33,40 +33,41 @@ No Jupyter? Open `diamond_analysis.html` in any browser to view the fully execut
 
 ## Notebook Walkthrough
 
-**Section 1 - Ingestion**  
+**Section 1 - Ingestion**
 Reads the CSV and confirms the load.
 
-**Section 2 - Discovery**  
-Reports shape, dtypes, missing value counts, and clarity distribution. No missing values were found; `clarity` was the only column requiring a type change (object to category).
+**Section 2 - Discovery**
+Reports shape, dtypes, missing value counts, and clarity distribution. No missing values were found; `clarity` was the only column requiring a type change (object to ordered category). Price is heavily right-skewed: standard deviation ($3,989) exceeds the mean ($3,933), and the median ($2,401) is the more representative measure of a typical stone's price.
 
-**Section 3 - Data Cleaning**  
-- `carat` cast to float64, `price` cast to int64, `clarity` cast to category  
-- 20,584 exact duplicate rows removed, leaving 33,356 clean rows  
+**Section 3 - Data Cleaning**
+- `carat` cast to float64, `price` cast to int64
+- `clarity` cast to an ordered categorical with grades ranked from IF (best) to I1 (worst), enabling correct sorting and comparison across quality grades
+- 20,584 exact duplicate rows removed, leaving 33,356 clean rows
 - Post-dedup null check (zero nulls confirmed)
 
-**Section 4 - Summary Statistics**  
-Mean and standard deviation for `carat` and `price` grouped by `clarity`. Accompanied by a stacked bar chart showing how each clarity grade distributes across carat-weight brackets (0-0.5 ct, 0.5-1 ct, etc.) - a more informative view than a plain count chart given only one categorical exists in the dataset.
+**Section 4 - Summary Statistics**
+Mean and standard deviation for `carat` and `price` grouped by `clarity`, with rows ordered from best to worst grade (IF down to I1). Note: the table shows lower-clarity grades (SI1, SI2) with higher average prices than premium grades - this is carat confounding, not a data error. Worse-clarity diamonds tend to be physically larger, and carat weight is the dominant price driver. Price-per-carat (Section 8) corrects for this. Accompanied by a stacked bar chart showing how each clarity grade distributes across carat-weight brackets.
 
 ![Stacked Bar - Diamond Count by Carat Bracket](charts/chart_01_stacked_bar_carat_by_clarity.png)
 
-**Section 5 - Exploratory Visualizations**  
+**Section 5 - Exploratory Visualizations**
 Box plots show quantiles and outliers for price and carat per clarity grade. Outliers are then removed using the IQR method applied independently per clarity group (not globally), producing **`df_filtered`** with 30,784 rows. Per-group removal is intentional: IF and VVS1 diamonds are inherently smaller, so a global threshold would incorrectly trim valid large SI-grade stones.
 
 ![Box Plots - Price and Carat with Outliers](charts/chart_02_boxplot_price_carat_with_outliers.png)
 
 ![Box Plots - Price and Carat Outliers Removed](charts/chart_03_boxplot_price_carat_outliers_removed.png)
 
-**Section 6 - Relationships in Filtered Data**  
+**Section 6 - Relationships in Filtered Data**
 Pearson correlation heatmap (carat vs price r = 0.891). Scatter plot of price vs. carat colored by clarity reveals substantial overlap between adjacent grades - the primary source of mispricing in the dataset.
 
 ![Correlation Heatmap](charts/chart_04_correlation_heatmap.png)
 
 ![Price vs Carat Scatter by Clarity](charts/chart_05_price_vs_carat_scatter.png)
 
-**Section 7 - Business Questions**  
-Answers derived from a `support_report` DataFrame (mean price and mean carat per clarity on `df_filtered`). Each answer includes a markdown explanation of the derivation and interpretation.
+**Section 7 - Business Questions**
+Answers derived from a `support_report` DataFrame containing mean price, median price, and mean carat per clarity on `df_filtered`. Q1 uses median price (more representative given right skew); Q2 uses mean price and mean carat.
 
-Top 3 clarity categories by highest median price:
+Top 3 clarity categories by highest median price (SI2, SI1, VS2 - driven by larger stone sizes in those grades):
 
 ![Median Price by Clarity](charts/chart_06_median_price_by_clarity.png)
 
@@ -74,7 +75,7 @@ Mean price vs mean carat per clarity (support report):
 
 ![Support Report Scatter](charts/chart_07_support_report_scatter.png)
 
-**Section 8 - Price-per-Carat Analysis**  
+**Section 8 - Price-per-Carat Analysis**
 Derives a `price_per_carat` feature (price / carat) to isolate the clarity premium from size effects. Raw median price incorrectly ranks SI1/SI2 highest because those stones tend to be larger. Price-per-carat correctly surfaces VVS2, VS1, and VS2 at the top, reflecting the true clarity premium hierarchy. Also reveals that VVS1 trades at a lower price-per-carat than SI1 - a genuine mispricing anomaly in the data.
 
 ![Price-per-Carat Box Plot by Clarity](charts/chart_08_price_per_carat_boxplot.png)
@@ -85,16 +86,19 @@ Derives a `price_per_carat` feature (price / carat) to isolate the clarity premi
 
 ## Assumptions
 
-**Duplicates are artifacts, not repeated observations.**  
+**Duplicates are artifacts, not repeated observations.**
 38% of the raw dataset (20,584 rows) are exact duplicates across all three columns. These are treated as data-entry errors and removed. If repeat observations were intentional (e.g., the same diamond appraised multiple times), the cleaning step would need revision.
 
-**IQR outlier removal is applied per clarity group.**  
+**IQR outlier removal is applied per clarity group.**
 Each clarity grade has its own carat and price distribution. A global IQR threshold would be too aggressive for high-clarity grades and too lenient for lower-clarity ones. Per-group removal is the statistically sound choice here.
 
-**Clarity is treated as a nominal category.**  
-All grouping, coloring, and visualization treats clarity as a nominal category. Axis ordering follows the natural grade progression (I1 lowest, IF highest) for readability, but no numeric encoding is applied.
+**Clarity is treated as an ordered category.**
+Clarity is encoded as an ordered categorical (IF best, I1 worst) to enable correct grade-based sorting throughout the analysis. No numeric encoding is applied.
 
-**"Mispriced" refers to overlap zones between clarity tiers.**  
+**Median is used for price comparisons, not mean.**
+Price is heavily right-skewed (std > mean). Median is the more representative central tendency measure and is used in the support_report and Q1 answer.
+
+**"Mispriced" refers to overlap zones between clarity tiers.**
 The dataset name implies pricing anomalies. The analysis targets zones where adjacent clarity grades command indistinguishable average prices for the same carat weight - most notably SI1/SI2 and VS1/VVS2.
 
 ---
@@ -104,7 +108,7 @@ The dataset name implies pricing anomalies. The analysis targets zones where adj
 | Library | Purpose |
 |---------|---------|
 | `pandas` | Data loading, cleaning, groupby aggregations |
-| `numpy` | Numeric operations |
+| `numpy` | Numeric operations, random seed |
 | `matplotlib` | Base plotting and tick formatting |
 | `seaborn` | Statistical visualizations (boxplots, heatmap, scatter) |
 | `jupyter` | Notebook environment |
