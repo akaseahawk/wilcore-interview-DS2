@@ -53,7 +53,7 @@ The chart below shows diamond counts by carat weight bracket (0-0.5 ct, 0.5-1 ct
 ![Stacked Bar - Diamond Count by Carat Bracket](charts/chart_01_stacked_bar_carat_by_clarity.png)
 
 **Section 5 - Exploratory Visualizations**
-Box plots show quantiles and outliers for price and carat per clarity grade. Outliers are then removed using the IQR method applied independently per clarity group (not globally), producing **`df_filtered`** with 30,784 rows. Per-group removal is intentional: IF and VVS1 diamonds are inherently smaller, so a global threshold would incorrectly trim valid large SI-grade stones.
+Box plots show quantiles and outliers for price and carat per clarity grade. Outliers are then removed using the IQR method applied independently per clarity group (not globally), producing **`df_filtered`** with 30,784 rows.
 
 ![Box Plots - Price and Carat with Outliers](charts/chart_02_boxplot_price_carat_with_outliers.png)
 
