@@ -1,118 +1,83 @@
-# Wilcore Technologies — Diamond Pricing EDA
+# Diamond Pricing — Exploratory Data Analysis
 
-Exploratory data analysis of the **P2-Mispriced-Diamonds** dataset, completed as part of the
-[Remote Data Scientist 2 interview challenge](https://workforcenow.adp.com/mascsr/default/mdf/recruitment/recruitment.html?cid=f7dc51cf-bcd4-4d90-8703-f151ed980046&ccId=9201427462023_3&lang=en_US&jobId=559006&jwId=9201427462023_1).
-
----
-
-## Project Structure
-
-```
-.
-├── P2-Mispriced-Diamonds.csv   # Raw dataset (53,940 rows)
-├── diamond_analysis.ipynb      # Main analysis notebook (fully executed)
-├── diamond_analysis.html       # Static HTML export of the executed notebook
-├── Request.md                  # Original challenge requirements
-└── README.md                   # This file
-```
+EDA of the **P2-Mispriced-Diamonds** dataset for the Wilcore Technologies Data Scientist 2 challenge.
 
 ---
 
-## Setup & Running Locally
-
-### Prerequisites
-
-- Python 3.9+
-- pip
-
-### Installation
+## Quick Start
 
 ```bash
-# Clone the repository
 git clone https://github.com/akaseahawk/wilcore-interview-DS2.git
 cd wilcore-interview-DS2
-
-# Install dependencies
-pip install pandas matplotlib seaborn jupyter nbconvert
-```
-
-### Run the Notebook
-
-```bash
+pip install pandas matplotlib seaborn jupyter
 jupyter notebook diamond_analysis.ipynb
 ```
 
-Or to re-execute it non-interactively:
+No Jupyter? Open `diamond_analysis.html` in any browser to view the fully executed notebook.
 
-```bash
-jupyter nbconvert --to notebook --execute --inplace diamond_analysis.ipynb
-```
+---
 
-### View as HTML (no Jupyter required)
+## Repository Contents
 
-Open `diamond_analysis.html` directly in any web browser to view the fully executed notebook
-with all charts and outputs rendered.
+| File | Description |
+|------|-------------|
+| `P2-Mispriced-Diamonds.csv` | Raw dataset — 53,940 rows, 3 columns (carat, clarity, price) |
+| `diamond_analysis.ipynb` | Main analysis notebook, fully executed with all outputs |
+| `diamond_analysis.html` | Static HTML export — no Jupyter required to view |
+| `Request.md` | Original challenge requirements |
+
+---
+
+## Notebook Walkthrough
+
+**Section 1 — Ingestion**  
+Reads the CSV and confirms the load.
+
+**Section 2 — Discovery**  
+Reports shape, dtypes, missing value counts, and clarity distribution. No missing values were found; `clarity` was the only column requiring a type change (object → category).
+
+**Section 3 — Data Cleaning**  
+- `carat` → `float64`, `price` → `int64`, `clarity` → `category`  
+- 20,584 exact duplicate rows removed → **33,356 clean rows**  
+- Post-dedup null check (zero nulls confirmed)
+
+**Section 4 — Summary Statistics**  
+Mean and standard deviation for `carat` and `price` grouped by `clarity`. Accompanied by a stacked bar chart showing how each clarity grade distributes across carat-weight brackets (0–0.5 ct, 0.5–1 ct, etc.) — a more informative view than a plain count chart given only one categorical exists.
+
+**Section 5 — Exploratory Visualizations**  
+Box plots show quantiles and outliers for price and carat per clarity grade. Outliers are then removed using the IQR method applied independently per clarity group (not globally), producing **`df_filtered`** — 30,784 rows. Per-group removal is intentional: IF and VVS1 diamonds are inherently smaller, so a global threshold would incorrectly trim valid large SI-grade stones.
+
+**Section 6 — Relationships in Filtered Data**  
+Pearson correlation heatmap (carat ↔ price r = 0.891). Scatter plot of price vs. carat colored by clarity reveals substantial overlap between adjacent grades — the primary source of mispricing in the dataset.
+
+**Section 7 — Business Questions**  
+Answers derived from a `support_report` DataFrame (mean price and mean carat per clarity on `df_filtered`). Each answer includes a markdown explanation of the derivation and interpretation.
 
 ---
 
 ## Assumptions
 
-| Assumption | Rationale |
-|------------ |-----------|
-| **Duplicate rows are true duplicates** | All 20,584 duplicate rows were identical across all 3 columns (carat + clarity + price). These were removed as data entry artifacts, not meaningful repeated observations. |
-| **IQR outlier removal applied per clarity group** | Different clarity grades have inherently different carat/price distributions. Applying a global IQR threshold would incorrectly flag valid high-carat SI-grade stones or miss noise in IF/VVS1 grades. Per-group removal is statistically sound. |
-| **"Mispriced" refers to overlap zones between clarity tiers** | The dataset name suggests pricing anomalies where diamonds of adjacent clarity grades command the same price for equivalent carat weights — these overlapping zones are the primary analytical target. |
-| **No ordinal encoding of clarity** | The challenge asks for categorical analysis; clarity is treated as a nominal category throughout rather than an ordered scale (I1 < SI2 < SI1 < VS2 < VS1 < VVS2 < VVS1 < IF), though the ordering is noted in markdown commentary. |
+**Duplicates are artifacts, not repeated observations.**  
+38% of the raw dataset (20,584 rows) are exact duplicates across all three columns. These are treated as data-entry errors and removed. If repeat observations were intentional (e.g., the same diamond appraised multiple times), the cleaning step would need revision.
+
+**IQR outlier removal is applied per clarity group.**  
+Each clarity grade has its own carat and price distribution. A global IQR threshold would be too aggressive for high-clarity grades and too lenient for lower-clarity ones. Per-group removal is the statistically sound choice here.
+
+**Clarity is treated as nominal, not ordinal.**  
+The challenge asks for categorical grouping. Although clarity has a natural order (I1 → IF), no ordinal encoding was applied — the analysis groups and colors by grade name throughout.
+
+**"Mispriced" refers to clarity grades with overlapping price-per-carat profiles.**  
+The dataset name implies pricing anomalies. The analysis targets the zones where adjacent clarity grades command indistinguishable average prices for the same carat weight.
 
 ---
 
-## Notebook Sections
+## Dependencies
 
-| Section | Description |
-|---------|-------------|
-| **0. Imports** | Loads pandas, numpy, matplotlib, seaborn; sets global plot style |
-| **1. Ingestion** | Reads `P2-Mispriced-Diamonds.csv`; previews first 10 rows |
-| **2. Discovery** | Reports shape (53,940 × 3), dtypes, missing values (none), clarity distribution |
-| **3. Data Cleaning** | Enforces dtypes, removes 20,584 duplicate rows → 33,356 clean rows |
-| **4. Summary Statistics** | Mean/std of carat and price grouped by clarity; stacked bar chart of record counts |
-| **5. Exploratory Visualizations** | Box plots per clarity (pre and post outlier removal); IQR-based outlier removal per group → `df_filtered` (30,784 rows) |
-| **6. Relationships** | Correlation heatmap (r = 0.891); scatter plot of price vs. carat colored by clarity; markdown analysis of overlap zones |
-| **7. Business Questions** | Answers to Q1 (top 3 clarity by median price) and Q2 (overlapping mean price/carat pairs) with full derivation in markdown |
-| **8. Summary** | Results table summarizing key figures from the entire analysis |
-
----
-
-## Key Findings
-
-### Top 3 Clarity Categories by Highest Median Price
-
-| Rank | Clarity | Median Price |
-|------|---------|-------------|
-| 1 | **SI2** | $3,965 |
-| 2 | **SI1** | $3,795 |
-| 3 | **VS2** | $3,756 |
-
-*Note: SI1/SI2 rank above premium grades (IF, VVS1) because they tend to be larger in carat weight,
-and carat is the dominant price driver (r = 0.891).*
-
-### Overlapping Mean Price/Carat Combinations
-
-Three clarity pairs exhibit overlapping mean profiles (within ±5% tolerance):
-
-| Pair | Overlap Type |
-|------|-------------|
-| **SI1 & SI2** | Both mean price (~$4,100) and mean carat (~0.90–0.99) nearly identical — strongest mispricing zone |
-| **SI1 & VS2** | Identical mean carat (~0.90 ct); VS2 carries ~17% price premium |
-| **VS1 & VVS2** | Mean prices within 0.3% ($4,554 vs $4,566); VVS2 achieves same price with fewer carats |
-
----
-
-## Libraries Used
-
-| Library | Version | Purpose |
-|---------|---------|---------|
-| pandas | ≥ 1.5 | Data loading, cleaning, aggregation |
-| numpy | ≥ 1.23 | Numeric operations |
-| matplotlib | ≥ 3.6 | Base plotting |
-| seaborn | ≥ 0.12 | Statistical visualizations |
-| jupyter / nbconvert | ≥ 6.x | Notebook execution and HTML export |
+| Library | Purpose |
+|---------|---------|
+| `pandas` | Data loading, cleaning, groupby aggregations |
+| `numpy` | Numeric operations |
+| `matplotlib` | Base plotting and tick formatting |
+| `seaborn` | Statistical visualizations (boxplots, heatmap, scatter) |
+| `jupyter` | Notebook environment |
+| `nbconvert` | HTML export (optional) |
