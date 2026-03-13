@@ -84,6 +84,8 @@ Derives a `price_per_carat` feature (price / carat) to isolate the clarity premi
 
 ![Mean Price-per-Carat Bar Chart](charts/chart_09_price_per_carat_bar.png)
 
+**Section 9 - Summary**
+Single cell to summarize results and findings.
 ---
 
 ## Assumptions
@@ -92,7 +94,7 @@ Derives a `price_per_carat` feature (price / carat) to isolate the clarity premi
 38% of the raw dataset (20,584 rows) are exact duplicates across all three columns. These are treated as data-entry errors and removed. If repeat observations were intentional (e.g., the same diamond appraised multiple times), the cleaning step would need revision.
 
 **IQR outlier removal is applied per clarity group.**
-Each clarity grade has its own carat and price distribution. A global IQR threshold would be too aggressive for high-clarity grades and too lenient for lower-clarity ones. Per-group removal is the statistically sound choice here.
+Each clarity grade has its own carat and price distribution. A global IQR threshold would be too aggressive for high-clarity grades and too lenient for lower-clarity ones.
 
 **Clarity is treated as an ordered category.**
 Clarity is encoded as an ordered categorical (IF best, I1 worst) to enable correct grade-based sorting throughout the analysis. No numeric encoding is applied.
@@ -101,7 +103,7 @@ Clarity is encoded as an ordered categorical (IF best, I1 worst) to enable corre
 Price is heavily right-skewed (std > mean). Median is the more representative central tendency measure and is used in the support_report and Q1 answer.
 
 **"Mispriced" refers to overlap zones between clarity tiers.**
-The dataset name implies pricing anomalies. The analysis targets zones where adjacent clarity grades command indistinguishable average prices for the same carat weight - most notably SI1/SI2 and VS1/VVS2.
+The dataset name implies pricing anomalies. The analysis targets zones where adjacent clarity grades command indistinguishable average prices for the same carat weight.
 
 ---
 
@@ -114,4 +116,3 @@ The dataset name implies pricing anomalies. The analysis targets zones where adj
 | `matplotlib` | Base plotting and tick formatting |
 | `seaborn` | Statistical visualizations (boxplots, heatmap, scatter) |
 | `jupyter` | Notebook environment |
-| `nbconvert` | HTML export (optional) |
