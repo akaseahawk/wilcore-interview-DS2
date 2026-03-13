@@ -27,6 +27,7 @@ No Jupyter? Open `diamond_analysis.html` in any browser to view the fully execut
 | `diamond_analysis.ipynb` | Main analysis notebook, fully executed with all outputs |
 | `diamond_analysis.html` | Static HTML export - no Jupyter required to view |
 | `Request.md` | Original challenge requirements |
+| `charts/` | PNG exports of all charts generated in the notebook |
 
 ---
 
@@ -46,17 +47,39 @@ Reports shape, dtypes, missing value counts, and clarity distribution. No missin
 **Section 4 - Summary Statistics**  
 Mean and standard deviation for `carat` and `price` grouped by `clarity`. Accompanied by a stacked bar chart showing how each clarity grade distributes across carat-weight brackets (0-0.5 ct, 0.5-1 ct, etc.) - a more informative view than a plain count chart given only one categorical exists in the dataset.
 
+![Stacked Bar - Diamond Count by Carat Bracket](charts/chart_01_stacked_bar_carat_by_clarity.png)
+
 **Section 5 - Exploratory Visualizations**  
 Box plots show quantiles and outliers for price and carat per clarity grade. Outliers are then removed using the IQR method applied independently per clarity group (not globally), producing **`df_filtered`** with 30,784 rows. Per-group removal is intentional: IF and VVS1 diamonds are inherently smaller, so a global threshold would incorrectly trim valid large SI-grade stones.
+
+![Box Plots - Price and Carat with Outliers](charts/chart_02_boxplot_price_carat_with_outliers.png)
+
+![Box Plots - Price and Carat Outliers Removed](charts/chart_03_boxplot_price_carat_outliers_removed.png)
 
 **Section 6 - Relationships in Filtered Data**  
 Pearson correlation heatmap (carat vs price r = 0.891). Scatter plot of price vs. carat colored by clarity reveals substantial overlap between adjacent grades - the primary source of mispricing in the dataset.
 
+![Correlation Heatmap](charts/chart_04_correlation_heatmap.png)
+
+![Price vs Carat Scatter by Clarity](charts/chart_05_price_vs_carat_scatter.png)
+
 **Section 7 - Business Questions**  
 Answers derived from a `support_report` DataFrame (mean price and mean carat per clarity on `df_filtered`). Each answer includes a markdown explanation of the derivation and interpretation.
 
+Top 3 clarity categories by highest median price:
+
+![Median Price by Clarity](charts/chart_06_median_price_by_clarity.png)
+
+Mean price vs mean carat per clarity (support report):
+
+![Support Report Scatter](charts/chart_07_support_report_scatter.png)
+
 **Section 8 - Price-per-Carat Analysis**  
 Derives a `price_per_carat` feature (price / carat) to isolate the clarity premium from size effects. Raw median price incorrectly ranks SI1/SI2 highest because those stones tend to be larger. Price-per-carat correctly surfaces VVS2, VS1, and VS2 at the top, reflecting the true clarity premium hierarchy. Also reveals that VVS1 trades at a lower price-per-carat than SI1 - a genuine mispricing anomaly in the data.
+
+![Price-per-Carat Box Plot by Clarity](charts/chart_08_price_per_carat_boxplot.png)
+
+![Mean Price-per-Carat Bar Chart](charts/chart_09_price_per_carat_bar.png)
 
 ---
 
@@ -68,8 +91,8 @@ Derives a `price_per_carat` feature (price / carat) to isolate the clarity premi
 **IQR outlier removal is applied per clarity group.**  
 Each clarity grade has its own carat and price distribution. A global IQR threshold would be too aggressive for high-clarity grades and too lenient for lower-clarity ones. Per-group removal is the statistically sound choice here.
 
-**Clarity is treated as nominal for EDA, ordinal for interpretation.**  
-All grouping, coloring, and visualization treats clarity as a nominal category. Axis ordering follows the natural grade progression (I1 lowest, IF highest) for readability, but no numeric encoding is applied in the EDA sections.
+**Clarity is treated as a nominal category.**  
+All grouping, coloring, and visualization treats clarity as a nominal category. Axis ordering follows the natural grade progression (I1 lowest, IF highest) for readability, but no numeric encoding is applied.
 
 **"Mispriced" refers to overlap zones between clarity tiers.**  
 The dataset name implies pricing anomalies. The analysis targets zones where adjacent clarity grades command indistinguishable average prices for the same carat weight - most notably SI1/SI2 and VS1/VVS2.
